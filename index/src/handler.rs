@@ -1,10 +1,11 @@
 use lambda_http::{Body, Error, Request, Response, http::Method};
 use dydb::DyDbClient;
-use define_company::Item;
+use define_company::Company;
+use serde_json;
 
 pub struct CustomEvent<'a> {
-    pub http_path: &'a str,
-    pub http_method: Method,
+    http_path: &'a str,
+    http_method: Method
 }
 
 pub async fn handle_request(db_client: &DyDbClient, event: Request) -> Result<Response<Body>, Error> {
@@ -22,7 +23,7 @@ pub async fn handle_request(db_client: &DyDbClient, event: Request) -> Result<Re
             http_path: "/new_company",
             http_method: Method::POST,
         } => {
-            let item = match serde_json::from_str::<Item>(s) {
+            let item = match serde_json::from_str::<Company>(s) {
                 Ok(item) => item,
                 Err(err) => {
                     let resp = Response::builder()
@@ -34,9 +35,9 @@ pub async fn handle_request(db_client: &DyDbClient, event: Request) -> Result<Re
                 }
             };
     
-            item.add_item(db_client).await?;
+            let result = item.add_company(db_client).await?;
         
-            let j = serde_json::to_string(&item.clone())?;
+            let j = serde_json::to_string(&result.clone())?;
         
             let resp = Response::builder()
             .status(200)
