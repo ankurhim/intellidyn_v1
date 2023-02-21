@@ -1,0 +1,49 @@
+1. users
+
+FICO Enterprise Structure
+2. companies
+3. company_codes
+4. assign company_codes to Company
+5. Define business area and consolidation business area
+6. Assign business area to consolidated business area
+7. Define credit control area
+8. Assign company code to credit control area
+9. Define functional area
+10. Maintain Financial Management Area
+11. Assign financial management area to company code
+12. How to create segments
+
+FICO Global Parameters
+1. What is Chart of accounts and how to create COA in SAP?
+2. Assign company code to chart of accounts
+3. What is Fiscal year in SAP?
+4. How to maintain fiscal year variant
+5. Assign company code to fiscal year variant
+6. Define account group in SAP
+7. Define retained earnings account
+8. Define posting period variant (PPV)
+9. Assign variants to company code in SAP
+10. Open and closing posting period variants
+11. Define field status variant and field status groups in FICO
+12. Assign company code to field status variant
+13. Define Tolerance group for G/L accounts
+14. Define Tolerance group for employees
+15. Check company code global parameters
+
+FICO foreign currency transactions
+1. Check exchange rate types
+2. Define translation ratios for currency translation
+3. How to maintain exchange rates in SAP
+4. Define accounts for exchange rate differences
+5. Define foreign currency valuation methods
+6. Define accounting principles and assign to ledger group
+7. Define valuation areas and assign to accounting principles
+
+FICO New G/L accounting
+1. How to activate new G/L accounting?
+2. Define ledgers for general ledger accounting
+3. Define currencies for leading currency
+4. Define & Activate Non-Leading Ledgers
+5. Define Zero-balance clearing account
+6. Define interest calculation types
+7. Define interest indicator

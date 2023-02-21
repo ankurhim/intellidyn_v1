@@ -2,7 +2,8 @@
 members = [
     "index",
     "dydb",
-    "define_company"
+    "user",
+    "company"
 ]
 
 [workspace.dependencies]

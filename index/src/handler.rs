@@ -1,6 +1,7 @@
 use lambda_http::{Body, Error, Request, Response, http::Method};
 use dydb::{DyDbClient, DyDbAction};
-use define_company::Company;
+use company::Company;
+use user::User;
 
 pub struct CustomEvent<'a> {
     http_path: &'a str,
@@ -18,6 +19,7 @@ pub async fn handle_request(db_client: &DyDbClient, event: Request) -> Result<Re
     let s = std::str::from_utf8(body).expect("invalid utf-8 sequence");
         
     match h_event {
+        CustomEvent {http_path: "/new_user", http_method: Method::POST} => Ok(User::add_item(s, db_client).await?),
         CustomEvent {http_path: "/new_company", http_method: Method::POST} => Ok(Company::add_item(s, db_client).await?),
         // CustomEvent {http_path: "/new_company_code", http_method: Method::POST} => Ok(CompanyCode::add_item(s, db_client).await?),
         _ => {
