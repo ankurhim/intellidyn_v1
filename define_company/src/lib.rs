@@ -1,7 +1,10 @@
 use aws_sdk_dynamodb::{model::AttributeValue, Error};
 use serde::{ Serialize, Deserialize };
-use dydb::DyDbClient;
+use lambda_http::{ Response, Body, Error as LambdaError };
+use serde_json;
+use dydb::{DyDbClient, DyDbAction};
 use std::collections::HashMap;
+use async_trait::async_trait;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Company {
@@ -50,5 +53,33 @@ impl Company {
         let _resp = client.write_items("company", hashmap);
     
         Ok(())
+    }
+}
+
+#[async_trait]
+impl DyDbAction for Company {
+    async fn add_item(s: &str, db_client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
+        let item = match serde_json::from_str::<Company>(s) {
+            Ok(item) => item,
+            Err(err) => {
+                let resp = Response::builder()
+                .status(400)
+                .header("content-type", "application/json")
+                .body(err.to_string().into())
+                .map_err(Box::new)?;
+                return Ok(resp);
+            }
+        };
+
+        let result = item.add_company(db_client).await?;
+    
+        let j = serde_json::to_string(&result.clone())?;
+    
+        let resp = Response::builder()
+        .status(200)
+        .header("content-type", "application/json")
+        .body(j.into())
+        .map_err(Box::new)?;
+        Ok(resp)
     }
 }

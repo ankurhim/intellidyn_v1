@@ -1,5 +1,7 @@
 use aws_sdk_dynamodb::{Client, Error, model::{ PutRequest, WriteRequest, AttributeValue }};
 use std::collections::HashMap;
+use lambda_http::{ Response, Body, Error as LambdaError };
+use async_trait::async_trait;
 
 pub struct DyDbClient {
     pub cli: Client
@@ -38,4 +40,9 @@ impl DyDbClient {
 
         Ok(())
     }
+}
+
+#[async_trait]
+pub trait DyDbAction: Send + Sync + 'static {
+    async fn add_item(s: &str, c: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized;
 }

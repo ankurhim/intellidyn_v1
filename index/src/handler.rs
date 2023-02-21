@@ -1,7 +1,6 @@
 use lambda_http::{Body, Error, Request, Response, http::Method};
-use dydb::DyDbClient;
+use dydb::{DyDbClient, DyDbAction};
 use define_company::Company;
-use serde_json;
 
 pub struct CustomEvent<'a> {
     http_path: &'a str,
@@ -19,33 +18,8 @@ pub async fn handle_request(db_client: &DyDbClient, event: Request) -> Result<Re
     let s = std::str::from_utf8(body).expect("invalid utf-8 sequence");
         
     match h_event {
-        CustomEvent {
-            http_path: "/new_company",
-            http_method: Method::POST,
-        } => {
-            let item = match serde_json::from_str::<Company>(s) {
-                Ok(item) => item,
-                Err(err) => {
-                    let resp = Response::builder()
-                    .status(400)
-                    .header("content-type", "application/json")
-                    .body(err.to_string().into())
-                    .map_err(Box::new)?;
-                    return Ok(resp);
-                }
-            };
-    
-            let result = item.add_company(db_client).await?;
-        
-            let j = serde_json::to_string(&result.clone())?;
-        
-            let resp = Response::builder()
-            .status(200)
-            .header("content-type", "application/json")
-            .body(j.into())
-            .map_err(Box::new)?;
-            Ok(resp)
-        },
+        CustomEvent {http_path: "/new_company", http_method: Method::POST} => Ok(Company::add_item(s, db_client).await?),
+        // CustomEvent {http_path: "/new_company_code", http_method: Method::POST} => Ok(CompanyCode::add_item(s, db_client).await?),
         _ => {
             let resp = Response::builder()
             .status(500)

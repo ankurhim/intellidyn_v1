@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 aws-config.workspace = true
 aws-sdk-dynamodb.workspace = true
+lambda_http.workspace = true
+async-trait.workspace = true
