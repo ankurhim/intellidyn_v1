@@ -24,7 +24,7 @@ pub async fn handle_request(db_client: &DyDbClient, event: Request) -> Result<Re
             let resp = Response::builder()
             .status(500)
             .header("content-type", "application/json")
-            .body(Body::Text("Method not allowed".to_string()))
+            .body(Body::Text("Method not allowed here".to_string()))
             .map_err(Box::new)?;
             Ok(resp)
         }
