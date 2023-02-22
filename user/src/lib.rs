@@ -17,7 +17,7 @@ pub struct User {
 
 impl User {
 
-    pub fn new(
+    pub fn init(
         username: String,
         password: String
     ) -> Self {
@@ -28,7 +28,7 @@ impl User {
         }
     }
     
-    pub async fn add_user(&self, client: &DyDbClient) -> Result<(), Error> {
+    pub async fn new(&self, client: &DyDbClient) -> Result<(), Error> {
         let user_pk_av = AttributeValue::S(self.clone().user_pk);
         let username_av = AttributeValue::S(self.clone().username);
         let password_av = AttributeValue::S(self.clone().password);
@@ -46,7 +46,7 @@ impl User {
         Ok(())
     }
 
-    pub async fn get_user(&self, client: &DyDbClient) -> Result<(), Error> {
+    pub async fn fetch(&self, client: &DyDbClient) -> Result<(), Error> {
 
         let map = vec![
             ("username".to_string(), AttributeValue::S(self.clone().username)),
@@ -64,19 +64,9 @@ impl User {
 #[async_trait]
 impl DyDbAction for User {
     async fn add_item(s: &str, db_client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item = match serde_json::from_str::<User>(s) {
-            Ok(item) => item,
-            Err(err) => {
-                let resp = Response::builder()
-                .status(400)
-                .header("content-type", "application/json")
-                .body(err.to_string().into())
-                .map_err(Box::new)?;
-                return Ok(resp);
-            }
-        };
+        let item: User = User::read_s(s).await?;
 
-        let result = item.add_user(db_client).await?;
+        let result = item.new(db_client).await?;
     
         let j = serde_json::to_string(&result.clone())?;
     
@@ -89,21 +79,11 @@ impl DyDbAction for User {
     }
 
     async fn get_item(s: &str, client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item = match serde_json::from_str::<User>(s) {
-            Ok(item) => item,
-            Err(err) => {
-                let resp = Response::builder()
-                .status(400)
-                .header("content-type", "application/json")
-                .body(err.to_string().into())
-                .map_err(Box::new)?;
-                return Ok(resp);
-            }
-        };
+        let item: User = User::read_s(s).await?;
 
-        let users = item.get_user(client).await?;
+        let result = item.fetch(client).await?;
 
-        let j = serde_json::to_string(&users.clone())?;
+        let j = serde_json::to_string(&result.clone())?;
     
         let resp = Response::builder()
         .status(200)
@@ -113,3 +93,5 @@ impl DyDbAction for User {
         Ok(resp)
     }
 }
+
+impl<T> SubTrait<T> for User {}
