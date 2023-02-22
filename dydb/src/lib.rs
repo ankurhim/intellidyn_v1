@@ -62,14 +62,17 @@ impl DyDbClient {
 
 #[async_trait]
 pub trait DyDbAction: Send + Sync + 'static {
-    async fn read_s<T>(s: &str) -> Result<T, serde_json::Error>
+    async fn add_item(s: &str, c: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized;
+    async fn get_item(s: &str, c: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized;
+}
+
+#[async_trait]
+pub trait SubTrait<T> {
+    async fn read_s(s: &str) -> Result<T, serde_json::Error>
     where
     Self: Sized,
     T: Clone + std::fmt::Debug + for <'de>Deserialize<'de> + Serialize
     {
         serde_json::from_str::<T>(s)
     }
-
-    async fn add_item(s: &str, c: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized;
-    async fn get_item(s: &str, c: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized;
 }

@@ -2,7 +2,7 @@ use aws_sdk_dynamodb::{model::AttributeValue, Error};
 use serde::{ Serialize, Deserialize };
 use lambda_http::{ Response, Body, Error as LambdaError };
 use serde_json;
-use dydb::{DyDbClient, DyDbAction};
+use dydb::{DyDbClient, DyDbAction, SubTrait};
 use std::collections::HashMap;
 use async_trait::async_trait;
 
@@ -12,7 +12,7 @@ use user::User;
 pub struct Company {
     pub p_type: String,
     pub age: String,
-    pub username: String,
+    pub company_key: String,
     pub first: String,
     pub last: String,
     pub created_by: User
@@ -20,10 +20,10 @@ pub struct Company {
 
 impl Company {
 
-    pub fn new(
+    pub fn init(
         p_type: String,
         age: String,
-        username: String,
+        company_key: String,
         first: String,
         last: String,
         created_by: User
@@ -31,23 +31,23 @@ impl Company {
         Company {
             p_type,
             age,
-            username,
+            company_key,
             first,
             last,
             created_by
         }
     }
     
-    pub async fn add_company(&self, client: &DyDbClient) -> Result<(), Error> {
-        let user_av = AttributeValue::S(self.clone().username);
+    pub async fn new(&self, client: &DyDbClient) -> Result<(), Error> {
+        let company_key_av = AttributeValue::S(self.clone().company_key);
         let type_av = AttributeValue::S(self.clone().p_type);
         let age_av = AttributeValue::S(self.clone().age);
         let first_av = AttributeValue::S(self.clone().first);
         let last_av = AttributeValue::S(self.clone().last);
-        let created_by_av = AttributeValue::S(self.clone().created_by);
+        let created_by_av = AttributeValue::S(self.clone().created_by.user_pk);
 
         let map = vec![
-            ("username".to_string(), user_av),
+            ("company_key".to_string(), company_key_av),
             ("account_type".to_string(), type_av),
             ("age".to_string(), age_av),
             ("first_name".to_string(), first_av),
@@ -62,7 +62,7 @@ impl Company {
         Ok(())
     }
 
-    pub async fn get_company(&self, client: &DyDbClient) -> Result<(), Error> {
+    pub async fn fetch(&self, client: &DyDbClient) -> Result<(), Error> {
 
         let map = vec![
             ("company_key".to_string(), AttributeValue::S(self.clone().company_key))
@@ -78,12 +78,10 @@ impl Company {
 
 #[async_trait]
 impl DyDbAction for Company {
-    async fn read_s(s: &str) -> Result<Self, serde_json::Error> where Self: Sized {}
-
     async fn add_item(s: &str, db_client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item = self.read_s(s)?;
+        let item: Company = Company::read_s(s).await?;
 
-        let result = item.add_company(db_client).await?;
+        let result = item.new(db_client).await?;
     
         let j = serde_json::to_string(&result.clone())?;
     
@@ -96,21 +94,11 @@ impl DyDbAction for Company {
     }
 
     async fn get_item(s: &str, client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item = match serde_json::from_str::<Company>(s) {
-            Ok(item) => item,
-            Err(err) => {
-                let resp = Response::builder()
-                .status(400)
-                .header("content-type", "application/json")
-                .body(err.to_string().into())
-                .map_err(Box::new)?;
-                return Ok(resp);
-            }
-        };
+        let item: Company = Company::read_s(s).await?;
 
-        let companies = item.get_company(client).await?;
+        let result = item.fetch(client).await?;
 
-        let j = serde_json::to_string(&users.clone())?;
+        let j = serde_json::to_string(&result.clone())?;
     
         let resp = Response::builder()
         .status(200)
@@ -120,3 +108,5 @@ impl DyDbAction for Company {
         Ok(resp)
     }
 }
+
+impl<T> SubTrait<T> for Company {}
