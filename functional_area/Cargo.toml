@@ -1,0 +1,20 @@
+[package]
+name = "functional_area"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+aws-sdk-dynamodb.workspace = true
+lambda_http.workspace = true
+async-trait.workspace = true
+uuid.workspace = true
+
+[dependencies.dydb]
+path = "../dydb"
+
+[dependencies.user]
+path = "../user"

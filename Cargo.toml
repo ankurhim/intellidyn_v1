@@ -3,8 +3,10 @@ members = [
     "index",
     "dydb",
     "user",
+    "customization_request",
     "company",
-    "segment"
+    "segment",
+    "functional_area"
 ]
 
 [workspace.dependencies]
