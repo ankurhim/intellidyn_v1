@@ -1,7 +1,7 @@
 use lambda_http::{Body, Error, Request, Response, http::Method};
-use dydb::{DyDbClient, DyDbAction};
-use company::Company;
-use user::User;
+use api_dydb::{DyDbClient, DyDbAction};
+use api_company::Company;
+use api_user::User;
 
 pub struct CustomEvent<'a> {
     http_path: &'a str,

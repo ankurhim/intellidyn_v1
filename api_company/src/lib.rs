@@ -2,52 +2,62 @@ use aws_sdk_dynamodb::{model::AttributeValue, Error};
 use serde::{ Serialize, Deserialize };
 use lambda_http::{ Response, Body, Error as LambdaError };
 use serde_json;
-use dydb::{DyDbClient, DyDbAction, SubTrait};
+use api_dydb::{DyDbClient, DyDbAction, SubTrait};
 use std::collections::HashMap;
 use async_trait::async_trait;
-use uuid::Uuid;
 
-use user::User;
+use api_user::User;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Segment {
-    pub segment_pk: String,
-    pub segment: String,
-    pub description: String,
+pub struct Company {
+    pub p_type: String,
+    pub age: String,
+    pub company_key: String,
+    pub first: String,
+    pub last: String,
     pub created_by: User
 }
 
-impl Segment {
+impl Company {
 
     pub fn init(
-        segment: String,
-        description: String,
+        p_type: String,
+        age: String,
+        company_key: String,
+        first: String,
+        last: String,
         created_by: User
     ) -> Self {
-        Segment {
-            segment_pk: Uuid::new_v4().to_string(),
-            segment,
-            description,
+        Company {
+            p_type,
+            age,
+            company_key,
+            first,
+            last,
             created_by
         }
     }
     
     pub async fn new(&self, client: &DyDbClient) -> Result<(), Error> {
-        let segment_pk_av = AttributeValue::S(self.clone().segment_pk);
-        let segment_av = AttributeValue::S(self.clone().segment);
-        let description_av = AttributeValue::S(self.clone().description);
+        let company_key_av = AttributeValue::S(self.clone().company_key);
+        let type_av = AttributeValue::S(self.clone().p_type);
+        let age_av = AttributeValue::S(self.clone().age);
+        let first_av = AttributeValue::S(self.clone().first);
+        let last_av = AttributeValue::S(self.clone().last);
         let created_by_av = AttributeValue::S(self.clone().created_by.user_pk);
 
         let map = vec![
-            ("segment_pk".to_string(), segment_pk_av),
-            ("segment".to_string(), segment_av),
-            ("description".to_string(), description_av),
+            ("company_key".to_string(), company_key_av),
+            ("account_type".to_string(), type_av),
+            ("age".to_string(), age_av),
+            ("first_name".to_string(), first_av),
+            ("last_name".to_string(), last_av),
             ("created_by".to_string(), created_by_av),
         ];
 
         let hashmap: HashMap<_, _> = map.into_iter().collect();
 
-        let _resp = client.write_items("segment", hashmap);
+        let _resp = client.write_items("company", hashmap);
     
         Ok(())
     }
@@ -55,21 +65,21 @@ impl Segment {
     pub async fn fetch(&self, client: &DyDbClient) -> Result<(), Error> {
 
         let map = vec![
-            ("segment".to_string(), AttributeValue::S(self.clone().segment))
+            ("company_key".to_string(), AttributeValue::S(self.clone().company_key))
         ];
 
         let hashmap: HashMap<_, _> = map.into_iter().collect();
 
-        let _resp = client.get_items("segment", hashmap);
+        let _resp = client.get_items("company", hashmap);
 
         Ok(())
     }
 }
 
 #[async_trait]
-impl DyDbAction for Segment {
+impl DyDbAction for Company {
     async fn add_item(s: &str, db_client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item: Segment = Segment::read_s(s).await?;
+        let item: Company = Company::read_s(s).await?;
 
         let result = item.new(db_client).await?;
     
@@ -84,7 +94,7 @@ impl DyDbAction for Segment {
     }
 
     async fn get_item(s: &str, client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item: Segment = Segment::read_s(s).await?;
+        let item: Company = Company::read_s(s).await?;
 
         let result = item.fetch(client).await?;
 
@@ -99,4 +109,4 @@ impl DyDbAction for Segment {
     }
 }
 
-impl<T> SubTrait<T> for Segment {}
+impl<T> SubTrait<T> for Company {}

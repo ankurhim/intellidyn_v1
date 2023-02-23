@@ -1,12 +1,12 @@
 [workspace]
 members = [
-    "index",
-    "dydb",
-    "user",
-    "customization_request",
-    "company",
-    "segment",
-    "functional_area"
+    "api_index",
+    "api_dydb",
+    "api_user",
+    "api_customization_request",
+    "api_company",
+    "api_segment",
+    "api_functional_area"
 ]
 
 [workspace.dependencies]

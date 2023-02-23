@@ -1,5 +1,5 @@
 [package]
-name = "index"
+name = "api_index"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,11 +12,14 @@ lambda_http.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
-[dependencies.dydb]
-path = "../dydb"
+[dependencies.api_dydb]
+path = "../api_dydb"
 
-[dependencies.company]
-path = "../company"
+[dependencies.api_company]
+path = "../api_company"
 
-[dependencies.user]
-path = "../user"
+[dependencies.api_user]
+path = "../api_user"
+
+[dependencies.api_segment]
+path = "../api_segment"

@@ -2,12 +2,12 @@ use aws_sdk_dynamodb::{model::AttributeValue, Error};
 use serde::{ Serialize, Deserialize };
 use lambda_http::{ Response, Body, Error as LambdaError };
 use serde_json;
-use dydb::{DyDbClient, DyDbAction, SubTrait};
+use api_dydb::{DyDbClient, DyDbAction, SubTrait};
 use std::collections::HashMap;
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use user::User;
+use api_user::User;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FunctionalArea {

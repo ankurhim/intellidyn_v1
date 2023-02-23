@@ -1,7 +1,7 @@
 pub mod handler;
 
 use lambda_http::{run, service_fn, Error, Request};
-use dydb::DyDbClient;
+use api_dydb::DyDbClient;
 use crate::handler::handle_request;
 
 

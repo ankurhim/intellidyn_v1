@@ -1,5 +1,5 @@
 [package]
-name = "segment"
+name = "api_user"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,9 +12,7 @@ aws-sdk-dynamodb.workspace = true
 lambda_http.workspace = true
 async-trait.workspace = true
 uuid.workspace = true
+bcrypt.workspace = true
 
-[dependencies.dydb]
-path = "../dydb"
-
-[dependencies.user]
-path = "../user"
+[dependencies.api_dydb]
+path = "../api_dydb"

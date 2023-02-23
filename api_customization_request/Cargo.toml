@@ -1,14 +1,20 @@
 [package]
-name = "dydb"
+name = "api_customization_request"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aws-config.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 aws-sdk-dynamodb.workspace = true
 lambda_http.workspace = true
 async-trait.workspace = true
-serde_json.workspace = true
-serde.workspace = true
+uuid.workspace = true
+
+[dependencies.api_dydb]
+path = "../api_dydb"
+
+[dependencies.api_user]
+path = "../api_user"

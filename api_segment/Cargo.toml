@@ -1,5 +1,5 @@
 [package]
-name = "functional_area"
+name = "api_segment"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,8 +13,8 @@ lambda_http.workspace = true
 async-trait.workspace = true
 uuid.workspace = true
 
-[dependencies.dydb]
-path = "../dydb"
+[dependencies.api_dydb]
+path = "../api_dydb"
 
-[dependencies.user]
-path = "../user"
+[dependencies.api_user]
+path = "../api_user"
