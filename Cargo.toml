@@ -3,7 +3,8 @@ members = [
     "index",
     "dydb",
     "user",
-    "company"
+    "company",
+    "segment"
 ]
 
 [workspace.dependencies]

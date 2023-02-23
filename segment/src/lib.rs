@@ -6,42 +6,48 @@ use dydb::{DyDbClient, DyDbAction, SubTrait};
 use std::collections::HashMap;
 use async_trait::async_trait;
 use uuid::Uuid;
-use bcrypt::{ hash, verify, DEFAULT_COST};
+
+use user::User;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct User {
-    pub user_pk: String,
-    pub username: String,
-    pub password: String
+pub struct Segment {
+    pub segment_pk: String,
+    pub segment: String,
+    pub description: String,
+    pub created_by: User
 }
 
-impl User {
+impl Segment {
 
     pub fn init(
-        username: String,
-        password: String
+        segment: String,
+        description: String,
+        created_by: User
     ) -> Self {
-        User {
-            user_pk: Uuid::new_v4().to_string(),
-            username,
-            password: hash(password, DEFAULT_COST).expect("Hashing Failed").to_string()
+        Segment {
+            segment_pk: Uuid::new_v4().to_string(),
+            segment,
+            description,
+            created_by
         }
     }
     
     pub async fn new(&self, client: &DyDbClient) -> Result<(), Error> {
-        let user_pk_av = AttributeValue::S(self.clone().user_pk);
-        let username_av = AttributeValue::S(self.clone().username);
-        let password_av = AttributeValue::S(self.clone().password);
+        let segment_pk_av = AttributeValue::S(self.clone().segment_pk);
+        let segment_av = AttributeValue::S(self.clone().segment);
+        let description_av = AttributeValue::S(self.clone().description);
+        let created_by_av = AttributeValue::S(self.clone().created_by.user_pk);
 
         let map = vec![
-            ("user_pk".to_string(), user_pk_av),
-            ("username".to_string(), username_av),
-            ("password".to_string(), password_av)
+            ("segment_pk".to_string(), segment_pk_av),
+            ("segment".to_string(), segment_av),
+            ("description".to_string(), description_av),
+            ("created_by".to_string(), created_by_av),
         ];
 
-        let hashmap: HashMap::<_, _> = map.into_iter().collect();
+        let hashmap: HashMap<_, _> = map.into_iter().collect();
 
-        let _resp = client.write_items("user", hashmap);
+        let _resp = client.write_items("segment", hashmap);
     
         Ok(())
     }
@@ -49,22 +55,21 @@ impl User {
     pub async fn fetch(&self, client: &DyDbClient) -> Result<(), Error> {
 
         let map = vec![
-            ("username".to_string(), AttributeValue::S(self.clone().username)),
-            ("password".to_string(), AttributeValue::S(self.clone().password))
+            ("segment".to_string(), AttributeValue::S(self.clone().segment))
         ];
 
         let hashmap: HashMap<_, _> = map.into_iter().collect();
 
-        let _resp = client.get_items("user", hashmap);
+        let _resp = client.get_items("segment", hashmap);
 
         Ok(())
     }
 }
 
 #[async_trait]
-impl DyDbAction for User {
+impl DyDbAction for Segment {
     async fn add_item(s: &str, db_client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item: User = User::read_s(s).await?;
+        let item: Segment = Segment::read_s(s).await?;
 
         let result = item.new(db_client).await?;
     
@@ -79,7 +84,7 @@ impl DyDbAction for User {
     }
 
     async fn get_item(s: &str, client: &DyDbClient) -> Result<Response<Body>, LambdaError> where Self: Sized {
-        let item: User = User::read_s(s).await?;
+        let item: Segment = Segment::read_s(s).await?;
 
         let result = item.fetch(client).await?;
 
@@ -94,4 +99,4 @@ impl DyDbAction for User {
     }
 }
 
-impl<T> SubTrait<T> for User {}
+impl<T> SubTrait<T> for Segment {}
